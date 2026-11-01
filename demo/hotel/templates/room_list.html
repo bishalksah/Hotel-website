@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Rooms & Suites - Chandigarh Grand Hotel{% endblock %}
+
+{% block content %}
+<style>
+    /* Header Banner */
+    .page-header {
+        background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)),
+                    url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        border-radius: 12px;
+        padding: 50px 20px;
+        color: #ffffff;
+        margin-bottom: 40px;
+        height: 500px;
+    }
+
+    /* Filter Controls */
+    .filter-btn {
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 6px 18px;
+        border: 1px solid #cbd5e1;
+        color: var(--text-dark);
+        background: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+        background-color: var(--primary-color);
+        color: #ffffff;
+        border-color: var(--primary-color);
+    }
+
+    /* Room Card Styling */
+    .room-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #ffffff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .room-image-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .room-image-container img {
+        height: 240px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .room-card:hover .room-image-container img {
+        transform: scale(1.05);
+    }
+
+    .room-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(15, 23, 42, 0.85);
+        color: #ffffff;
+        font-size: 0.8rem;
+        padding: 5px 12px;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+    }
+
+    .feature-tag {
+        font-size: 0.78rem;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: inline-block;
+        margin-right: 4px;
+        margin-bottom: 6px;
+    }
+
+    .price-value {
+        color: var(--accent-color);
+        font-weight: 700;
+        font-size: 1.35rem;
+    }
+</style>
+
+<!-- Header Banner -->
+<div class="page-header text-center">
+    <h1 class="fw-bold mb-2">Our Rooms & Suites</h1>
+    <p class="lead opacity-90 m-0">Designed for ultimate relaxation, elegance, and peace of mind in Chandigarh.</p>
+</div>
+
+<!-- Category Filters -->
+<div class="d-flex flex-wrap justify-content-center gap-2 mb-5">
+    <button class="filter-btn active" onclick="filterRooms('all')">All Accommodations</button>
+    <button class="filter-btn" onclick="filterRooms('DELUXE')">Deluxe Rooms</button>
+    <button class="filter-btn" onclick="filterRooms('SUPERIOR')">Superior Rooms</button>
+    <button class="filter-btn" onclick="filterRooms('SUITE')">Executive Suites</button>
+</div>
+
+<!-- Rooms Grid -->
+<div class="row g-4" id="rooms-container">
+    {% for room in rooms %}
+    <div class="col-md-6 col-lg-4 room-item" data-category="{{ room.room_type }}">
+        <div class="card room-card h-100 shadow-sm">
+            <div class="room-image-container">
+                {% if room.image %}
+                    <img src="{{ room.image.url }}" class="card-img-top" alt="Room {{ room.room_number }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Room Placeholder">
+                    {% endif %}
+                <span class="room-badge"><i class="fa-solid fa-door-closed me-1"></i> Room {{ room.room_number }}</span>
+            </div>
+
+            <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title fw-bold m-0">{{ room.get_room_type_display }}</h5>
+                    <span class="text-muted small"><i class="fa-solid fa-user-group me-1"></i> {{ room.capacity }} Guests</span>
+                </div>
+
+                <p class="card-text text-secondary small flex-grow-1 mb-3">
+                    {{ room.description|default:"Includes complimentary high-speed Wi-Fi, modern climate control, plush bedding, and 24/7 room service." }}
+                </p>
+
+                <!-- Amenity Highlights -->
+                <div class="mb-3">
+                    <span class="feature-tag"><i class="fa-solid fa-wifi me-1"></i> Free Wi-Fi</span>
+                    <span class="feature-tag"><i class="fa-solid fa-tv me-1"></i> Smart TV</span>
+                    <span class="feature-tag"><i class="fa-solid fa-snowflake me-1"></i> AC</span>
+                    <span class="feature-tag"><i class="fa-solid fa-mug-hot me-1"></i> Tea/Coffee</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <div>
+                        <div class="price-value">₹{{ room.price_per_night }}</div>
+                        <div class="text-muted small">per night + taxes</div>
+                    </div>
+                    <a href="{% url 'book_room' room.id %}" class="btn btn-accent px-3 py-2">
+                        <i class="fa-solid fa-calendar-plus me-1"></i> Reserve
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="fa-solid fa-bed text-muted display-4 mb-3"></i>
+        <h4 class="fw-bold text-muted">No Rooms Available</h4>
+        <p class="text-muted">No rooms match your criteria at the moment. Please check back later or contact our desk.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Simple Category Filter Script -->
+<script>
+    function filterRooms(category) {
+        const items = document.querySelectorAll('.room-item');
+        const buttons = document.querySelectorAll('.filter-btn');
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        items.forEach(item => {
+            if (category === 'all' || item.getAttribute('data-category') === category) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

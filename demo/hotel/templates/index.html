@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Chandigarh Grand Hotel - Experience Unmatched Luxury{% endblock %}
+
+{% block content %}
+<style>
+    /* Hero Section Styling */
+    .hero-container {
+        position: relative;
+        background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)),
+                    url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        border-radius: 16px;
+        padding: 80px 20px;
+        color: white;
+        margin-bottom: 50px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Floating Booking Search Bar */
+    .booking-bar {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        margin-top: -40px;
+        position: relative;
+        z-index: 10;
+        color: var(--text-dark);
+    }
+
+    /* Room Cards Styling */
+    .room-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: #ffffff;
+    }
+
+    .room-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .room-card img {
+        height: 220px;
+        object-fit: cover;
+    }
+
+    .price-tag {
+        color: var(--accent-color);
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    /* Amenities Cards */
+    .amenity-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 30px 20px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .amenity-card:hover {
+        border-color: var(--accent-color);
+        background: #fdfbf7;
+    }
+
+    .amenity-icon {
+        font-size: 2.2rem;
+        color: var(--accent-color);
+        margin-bottom: 15px;
+    }
+</style>
+
+<!-- Hero Banner -->
+<div class="hero-container text-center">
+    <span class="badge bg-warning text-dark px-3 py-2 mb-3 fw-bold text-uppercase" style="letter-spacing: 1px;">Sector 17, Chandigarh</span>
+    <h1 class="display-4 fw-bold mb-3">Experience Luxury in the City Beautiful</h1>
+    <p class="lead max-w-600 mx-auto opacity-90 mb-4">Minutes away from Sukhna Lake, Rock Garden, and premium shopping centers. Premium hospitality tailored for you.</p>
+</div>
+
+<!-- Quick Availability Check Bar -->
+<div class="booking-bar mb-5">
+    <form class="row g-3 align-items-end" action="{% url 'room_list' %}" method="GET">
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted small mb-1"><i class="fa-solid fa-calendar-check me-1"></i> Check-in Date</label>
+            <input type="date" class="form-control" name="check_in" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted small mb-1"><i class="fa-solid fa-calendar-xmark me-1"></i> Check-out Date</label>
+            <input type="date" class="form-control" name="check_out" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted small mb-1"><i class="fa-solid fa-user-group me-1"></i> Guests</label>
+            <select class="form-select" name="guests">
+                <option value="1">1 Guest</option>
+                <option value="2" selected>2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4+ Guests</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-accent w-100 py-2">
+                <i class="fa-solid fa-magnifying-glass me-2"></i> Check Availability
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Featured Rooms Section -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h6 class="text-uppercase fw-bold text-warning mb-1" style="letter-spacing: 1px;">Accommodations</h6>
+            <h2 class="fw-bold m-0">Our Featured Rooms</h2>
+        </div>
+        <a href="{% url 'room_list' %}" class="btn btn-outline-dark btn-sm fw-semibold">View All Rooms <i class="fa-solid fa-arrow-right ms-1"></i></a>
+    </div>
+
+    <div class="row g-4">
+        {% for room in rooms %}
+        <div class="col-md-4">
+            <div class="card room-card h-100 shadow-sm">
+                {% if room.image %}
+                    <img src="{{ room.image.url }}" class="card-img-top" alt="Room {{ room.room_number }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Room Placeholder">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold m-0">{{ room.get_room_type_display }}</h5>
+                        <span class="badge bg-light text-dark border">Room {{ room.room_number }}</span>
+                    </div>
+                    <p class="text-muted small mb-3"><i class="fa-solid fa-users me-1"></i> Up to {{ room.capacity }} Guests</p>
+                    <p class="card-text text-secondary small flex-grow-1">{{ room.description|truncatewords:15 }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <div class="price-tag">₹{{ room.price_per_night }} <span class="fs-6 text-muted fw-normal">/ night</span></div>
+                        <a href="{% url 'book_room' room.id %}" class="btn btn-accent btn-sm"><i class="fa-solid fa-key me-1"></i> Book Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-bed text-muted display-4 mb-3"></i>
+            <p class="text-muted">No rooms currently available. Please check back later.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Hotel Amenities Section -->
+<section class="mb-5 py-4">
+    <div class="text-center mb-4">
+        <h6 class="text-uppercase fw-bold text-warning mb-1" style="letter-spacing: 1px;">World-Class Services</h6>
+        <h2 class="fw-bold">Why Stay With Us?</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-3 col-6">
+            <div class="amenity-card">
+                <i class="fa-solid fa-wifi amenity-icon"></i>
+                <h6 class="fw-bold mb-1">High-Speed Wi-Fi</h6>
+                <p class="text-muted small m-0">Seamless connectivity in all rooms</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="amenity-card">
+                <i class="fa-solid fa-utensils amenity-icon"></i>
+                <h6 class="fw-bold mb-1">In-House Dining</h6>
+                <p class="text-muted small m-0">Multicuisine luxury dining</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="amenity-card">
+                <i class="fa-solid fa-square-parking amenity-icon"></i>
+                <h6 class="fw-bold mb-1">Free Valet Parking</h6>
+                <p class="text-muted small m-0">Secure 24/7 parking for guests</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="amenity-card">
+                <i class="fa-solid fa-bell-concierge amenity-icon"></i>
+                <h6 class="fw-bold mb-1">24/7 Concierge</h6>
+                <p class="text-muted small m-0">Round-the-clock room service</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
